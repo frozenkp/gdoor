@@ -15,7 +15,9 @@ import(
   "github.com/fatih/color"
 )
 
-func connHandler(token string, sock socket.Socket) bool {
+var socks = make(map[string]socket.Socket)
+
+func connHandler(token string, sock socket.Socket){
   reader := bufio.NewReader(os.Stdin)
 
   for true {
@@ -30,7 +32,7 @@ func connHandler(token string, sock socket.Socket) bool {
 
     switch strings.Split(input, " ")[0] {
     case "quit":
-      return true
+      return
 
     case "":
       continue
@@ -39,13 +41,21 @@ func connHandler(token string, sock socket.Socket) bool {
       sock.Write(input)
       cmds := strings.Split(input, "push")
       cmds[1] = strings.TrimSpace(cmds[1])
-      sock.SendFile(cmds[1])
+
+      ftoken, _ := sock.Read()
+      socks[ftoken].SendFile(cmds[1])
+      socks[ftoken].Close()
+      delete(socks, ftoken)
 
     case "pull":
       sock.Write(input)
       cmds := strings.Split(input, "pull")
       cmds[1] = strings.TrimSpace(cmds[1])
-      sock.RecvFile(cmds[1])
+
+      ftoken, _ := sock.Read()
+      socks[ftoken].RecvFile(cmds[1])
+      socks[ftoken].Close()
+      delete(socks, ftoken)
 
     default:
       sock.Write(input)
@@ -54,13 +64,14 @@ func connHandler(token string, sock socket.Socket) bool {
     resp, err := sock.Read()
     if err == io.EOF {
       sock.Close()
-      return false
+      delete(socks, token)
+      return
     }
 
     fmt.Println(resp)
   }
 
-  return true
+  return
 }
 
 func main(){
@@ -80,7 +91,6 @@ func main(){
   }
 
   // listen
-  socks := make(map[string]socket.Socket)
   go func(){
     for {
       conn, err := server.Accept()
@@ -118,6 +128,7 @@ func main(){
       fmt.Printf("\t%s\t\t%s\n", color.HiBlueString("help"), "Show this help message.")
       fmt.Printf("\t%s\t\t%s\n", color.HiBlueString("ls"), "List all slaves.")
       fmt.Printf("\t%s\t%s\n", color.HiBlueString("c $token"), "Connect to specified slave.")
+      fmt.Printf("\t%s\t\t%s\n", color.HiBlueString("exit"), "Exit.")
 
     case "ls":
       for k, v := range(socks) {
@@ -131,14 +142,18 @@ func main(){
       }else{
         reqToken = commands[1]
         if sock, exist := socks[reqToken]; exist {
-          result := connHandler(reqToken, sock)
-          if !result {
-            delete(socks, reqToken)
-          }
+          connHandler(reqToken, sock)
         }else{
           color.HiRed("No such token.")
         }
       }
+
+    case "exit":
+      for _, v := range(socks) {
+        v.Close()
+      }
+      return
+
     default:
       color.HiRed("No such comand.")
     }

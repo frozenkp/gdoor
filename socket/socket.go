@@ -1,6 +1,7 @@
 package socket
 
 import(
+  "encoding/base64"
   "net"
   "strings"
   "bufio"
@@ -40,13 +41,19 @@ func (s Socket) Read()(string, error){
   buf := make([]byte, length)
   cnt, _ := io.ReadFull(r, buf)
 
-  return crypto.XOR(string(buf[:cnt]), s.key), nil
+  content, err := base64.StdEncoding.DecodeString(string(buf[:cnt]))
+  if err != nil {
+    return "", err
+  }
+
+  return crypto.XOR(string(content), s.key), nil
 }
 
 func (s Socket) Write(resp string){
   w := bufio.NewWriter(s.conn)
   cipher := crypto.XOR(resp, s.key)
-  w.WriteString(fmt.Sprintf("<%x>%s", len(cipher), cipher))
+  content := base64.StdEncoding.EncodeToString([]byte(cipher))
+  w.WriteString(fmt.Sprintf("<%x>%s", len(content), content))
   w.Flush()
 }
 

