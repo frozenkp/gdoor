@@ -4,7 +4,9 @@ import(
   "fmt"
   "io"
   "os"
+  "path/filepath"
   "strconv"
+  "errors"
 
   "../debug"
 )
@@ -31,7 +33,7 @@ func (sock Socket) SendFile(fileName string)error{
   // wait for client create
   resp, _ := sock.Read()
   if resp != "<OK>" {
-    return nil
+    return errors.New("Received side open file failed.")
   }
 
   // send file content
@@ -48,9 +50,10 @@ func (sock Socket) SendFile(fileName string)error{
 }
 
 func (sock Socket) RecvFile(fileName string) error {
+  fileName = filepath.Base(fileName)
   fileSize, _ := sock.Read()
   if fileSize == "<ERROR>" {
-    return nil
+    return errors.New("Sent side open file failed.")
   }
   fileSize_i, _ := strconv.ParseInt(fileSize, 16, 64)
 

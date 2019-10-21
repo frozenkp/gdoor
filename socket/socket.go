@@ -6,6 +6,7 @@ import(
   "bufio"
   "fmt"
   "strconv"
+  "io"
 
   "../crypto"
 )
@@ -37,14 +38,20 @@ func (s Socket) Read()(string, error){
   length, _ := strconv.ParseInt(strings.Trim(header, "<>"), 16, 32)
 
   buf := make([]byte, length)
-  cnt, _ := r.Read(buf)
+  cnt, _ := io.ReadFull(r, buf)
 
   return crypto.XOR(string(buf[:cnt]), s.key), nil
 }
 
 func (s Socket) Write(resp string){
+  w := bufio.NewWriter(s.conn)
   cipher := crypto.XOR(resp, s.key)
-  s.conn.Write([]byte(fmt.Sprintf("<%x>%s", len(cipher), cipher)))
+  w.WriteString(fmt.Sprintf("<%x>%s", len(cipher), cipher))
+  w.Flush()
+}
+
+func (s Socket) RemoteAddr() net.Addr {
+  return s.conn.RemoteAddr()
 }
 
 func (s Socket) Close(){
