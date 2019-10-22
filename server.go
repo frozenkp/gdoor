@@ -31,6 +31,15 @@ func connHandler(token string, sock socket.Socket){
     input = strings.TrimSpace(input)
 
     switch strings.Split(input, " ")[0] {
+    case "help":
+      fmt.Printf("\t%s\t\t%s\n", color.HiBlueString("help"), "Show this help message.")
+      fmt.Printf("\t%s\t%s\n", color.HiBlueString("shell $cmd"), "Execute shell command.")
+      fmt.Printf("\t%s\t%s\n", color.HiBlueString("push $file"), "Send file to slave.")
+      fmt.Printf("\t%s\t%s\n", color.HiBlueString("pull $file"), "Receive file from slave.")
+      fmt.Printf("\t%s\t%s\n", color.HiBlueString("shutdown"), "Kill the slave.")
+      fmt.Printf("\t%s\t\t%s\n", color.HiBlueString("quit"), "Detach this slave.")
+      continue
+
     case "quit":
       return
 
@@ -68,7 +77,7 @@ func connHandler(token string, sock socket.Socket){
       return
     }
 
-    fmt.Printf("%s", resp)
+    fmt.Println(strings.TrimRight(resp, "\n"))
   }
 
   return
