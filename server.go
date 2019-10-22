@@ -68,7 +68,7 @@ func connHandler(token string, sock socket.Socket){
       return
     }
 
-    fmt.Println(resp)
+    fmt.Printf("%s", resp)
   }
 
   return
@@ -131,7 +131,7 @@ func main(){
       fmt.Printf("\t%s\t\t%s\n", color.HiBlueString("exit"), "Exit.")
 
     case "ls":
-      for k, v := range(socks) {
+      for k, v := range socks {
         fmt.Printf("%s %v\n", color.CyanString(k), v.RemoteAddr())
       }
 
@@ -149,7 +149,7 @@ func main(){
       }
 
     case "exit":
-      for _, v := range(socks) {
+      for _, v := range socks {
         v.Close()
       }
       return

