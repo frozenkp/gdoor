@@ -1,3 +1,5 @@
+//+build !debug
+
 package config
 
 const(
@@ -8,6 +10,5 @@ const(
   PlistDir        string  = "/Library/LaunchAgents"
   PlistName       string  = "com.mac.host"
   ServerIP        string  = "192.168.30.130"
-  //ServerIP        string  = "127.0.0.1"
   ServerPort      string  = ":8001"
 )
