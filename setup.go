@@ -4,7 +4,6 @@ import(
   "flag"
   "os"
   "log"
-  "strings"
   "bufio"
   "io"
 )
@@ -21,10 +20,6 @@ func main(){
   port := flag.String("p", "", "Specified port.")
 
   flag.Parse()
-
-  // Subtituted IP / Port
-  SubIP := *ip + strings.Repeat("\x00", len(IP_PATTERN) - len(*ip))
-  SubPort := *port + strings.Repeat("\x00", len(PORT_PATTERN) - len(*port) - 1)
 
   // target binary
   file, err := os.Open(*bin)
@@ -60,7 +55,8 @@ func main(){
           }
         }
         if verified {
-          w.WriteString(SubIP)
+          w.WriteString(*ip)
+          for i:=len(*ip); i<len(IP_PATTERN); i++ {w.WriteByte('\x00')}
           r.Discard(len(IP_PATTERN)-1)
           log.Println("IP pattern found.")
           continue
@@ -77,7 +73,8 @@ func main(){
           }
         }
         if verified {
-          w.WriteString(SubPort)
+          w.WriteString(*port)
+          for i:=len(*port); i<len(PORT_PATTERN); i++ {w.WriteByte('\x00')}
           r.Discard(len(PORT_PATTERN)-1)
           log.Println("Port pattern found.")
           continue
