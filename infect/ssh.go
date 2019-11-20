@@ -51,7 +51,7 @@ func parseConfig(i *info.Info)map[string]*ssh.ClientConfig{
 
       if hostname != "" && user != "" && port != "" && identityfile != "" {
 	// get private key
-	identityfile = filepath.Join(i.GetHomePath(), strings.Split(identityfile, "~")[1])
+        identityfile, _ := filepath.Abs(identityfile)
 	key, err := ioutil.ReadFile(identityfile)
 	if err != nil {
 	  debug.Println(err)
