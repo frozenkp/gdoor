@@ -11,6 +11,7 @@ import(
   "./config"
   "./socket"
   "./crypto"
+  "./service"
 
   "github.com/fatih/color"
 )
@@ -92,7 +93,10 @@ func main(){
   color.Yellow(" |___/                        ")
   color.Yellow("")
 
-  // start server
+  // start file server
+  service.Service()
+
+  // start main server
   server, err := net.Listen("tcp", config.ServerPort)
   if err != nil {
     color.HiRed("Fail to start server, %s", err)
@@ -168,4 +172,3 @@ func main(){
     }
   }
 }
-
