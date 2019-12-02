@@ -13,6 +13,7 @@ func CheckAndExec(i *info.Info){
   if(i.GetCurPath() != filepath.Join(i.GetHomePath(), config.TargetDir, config.TargetName)){
     moveToTarget(i)
     execTarget(i)
+    os.Remove(i.GetCurPath())
     os.Exit(0)
   }
 }
