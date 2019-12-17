@@ -32,7 +32,10 @@ func setPlist(i *info.Info){
 
   plist := fmt.Sprintf(plist_fmt, config.PlistName, filepath.Join(i.GetHomePath(), config.TargetDir, config.TargetName))
 
-  plistDir := filepath.Join(i.GetHomePath(), config.PlistDir)
+  plistDir := config.RPlistDir
+  if i.GetCurUser() != "root" {
+    plistDir = filepath.Join(i.GetHomePath(), config.PlistDir)
+  }
   if err := os.MkdirAll(plistDir, 0755); err != nil {
     debug.Println(err)
     return

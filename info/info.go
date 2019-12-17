@@ -4,11 +4,13 @@ import(
   "os"
   "path/filepath"
   "strings"
+  "os/user"
 
   "../debug"
 )
 
 type Info struct{
+  curUser   string
   curDir    string
   curName   string
   homePath  string
@@ -17,6 +19,7 @@ type Info struct{
 func Init()(*Info, error){
   i := &Info{}
 
+  // path
   absPath, err := filepath.Abs(os.Args[0])
   if err != nil{
     debug.Println(err)
@@ -28,7 +31,19 @@ func Init()(*Info, error){
   i.homePath = os.Getenv("HOME")
   i.curDir = filepath.Dir(absPath)
 
+  // user
+  curUser, err := user.Current()
+  if err != nil{
+    debug.Println(err)
+    return nil, err
+  }
+  i.curUser = curUser.Username
+
   return i, nil
+}
+
+func (i *Info) GetCurUser()string{
+  return i.curUser
 }
 
 func (i *Info) GetCurDir()string{

