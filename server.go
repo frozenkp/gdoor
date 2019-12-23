@@ -148,6 +148,14 @@ func main(){
 
     case "ls":
       for k, v := range socks {
+        v.Write("ping")
+        resp, err := v.Read()
+        if err == io.EOF || resp != "pong" {
+          v.Close()
+          delete(socks, k)
+          continue
+        }
+
         fmt.Printf("%s %v\n", color.CyanString(k), v.RemoteAddr())
       }
 
