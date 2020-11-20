@@ -1,6 +1,6 @@
 # gdoor
 
-Gdoor is a red team emulation tool deveoped by CyCraft Technology. We use it to construct a macOS cyber range fro red team and blue team. We published our cyber range on ASIACCS'20 and HITB CyberWeek 2020.
+Gdoor is a red team emulation tool deveoped by CyCraft Technology. We use it to construct a macOS cyber range for red team and blue team. We published our cyber range on ASIACCS'20 and HITB CyberWeek 2020.
 
 ## Build
 
