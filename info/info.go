@@ -1,63 +1,63 @@
 package info
 
-import(
-  "os"
-  "path/filepath"
-  "strings"
-  "os/user"
+import (
+	"os"
+	"os/user"
+	"path/filepath"
+	"strings"
 
-  "../debug"
+	"gdoor/debug"
 )
 
-type Info struct{
-  curUser   string
-  curDir    string
-  curName   string
-  homePath  string
+type Info struct {
+	curUser  string
+	curDir   string
+	curName  string
+	homePath string
 }
 
-func Init()(*Info, error){
-  i := &Info{}
+func Init() (*Info, error) {
+	i := &Info{}
 
-  // path
-  absPath, err := filepath.Abs(os.Args[0])
-  if err != nil{
-    debug.Println(err)
-    return nil, err
-  }
+	// path
+	absPath, err := filepath.Abs(os.Args[0])
+	if err != nil {
+		debug.Println(err)
+		return nil, err
+	}
 
-  pathSlice := strings.Split(absPath, "/")
-  i.curName = pathSlice[len(pathSlice)-1]
-  i.homePath = os.Getenv("HOME")
-  i.curDir = filepath.Dir(absPath)
+	pathSlice := strings.Split(absPath, "/")
+	i.curName = pathSlice[len(pathSlice)-1]
+	i.homePath = os.Getenv("HOME")
+	i.curDir = filepath.Dir(absPath)
 
-  // user
-  curUser, err := user.Current()
-  if err != nil{
-    debug.Println(err)
-    return nil, err
-  }
-  i.curUser = curUser.Username
+	// user
+	curUser, err := user.Current()
+	if err != nil {
+		debug.Println(err)
+		return nil, err
+	}
+	i.curUser = curUser.Username
 
-  return i, nil
+	return i, nil
 }
 
-func (i *Info) GetCurUser()string{
-  return i.curUser
+func (i *Info) GetCurUser() string {
+	return i.curUser
 }
 
-func (i *Info) GetCurDir()string{
-  return i.curDir
+func (i *Info) GetCurDir() string {
+	return i.curDir
 }
 
-func (i *Info) GetCurName()string{
-  return i.curName
+func (i *Info) GetCurName() string {
+	return i.curName
 }
 
-func (i *Info) GetHomePath()string{
-  return i.homePath
+func (i *Info) GetHomePath() string {
+	return i.homePath
 }
 
-func (i *Info) GetCurPath()string{
-  return filepath.Join(i.curDir, i.curName)
+func (i *Info) GetCurPath() string {
+	return filepath.Join(i.curDir, i.curName)
 }

