@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/frozenkp/gopwn v0.0.0-20220323062700-4ba0dd9ae7ba // indirect
 	github.com/gen2brain/shm v0.0.0-20200228170931-49f9650110c5 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect

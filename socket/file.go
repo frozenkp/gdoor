@@ -2,11 +2,11 @@ package socket
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
+
+	"github.com/frozenkp/gopwn"
 
 	"gdoor/debug"
 )
@@ -15,7 +15,7 @@ func (sock Socket) SendFile(fileName string) error {
 	file, err := os.Open(fileName)
 	if err != nil {
 		debug.Println(err)
-		sock.Write("<ERROR>")
+		sock.Write([]byte("<ERROR>"))
 		return err
 	}
 	defer file.Close()
@@ -23,16 +23,16 @@ func (sock Socket) SendFile(fileName string) error {
 	fileInfo, err := file.Stat()
 	if err != nil {
 		debug.Println(err)
-		sock.Write("<ERROR>")
+		sock.Write([]byte("<ERROR>"))
 		return err
 	}
 
 	// send size
-	sock.Write(fmt.Sprintf("%x", fileInfo.Size()))
+	sock.Write([]byte(gopwn.P64(int(fileInfo.Size()))))
 
 	// wait for client create
 	resp, _ := sock.Read()
-	if resp != "<OK>" {
+	if string(resp) != "<OK>" {
 		return errors.New("Received side open file failed.")
 	}
 
@@ -43,7 +43,7 @@ func (sock Socket) SendFile(fileName string) error {
 		if err == io.EOF {
 			break
 		}
-		sock.Write(string(buf[:cnt]))
+		sock.Write(buf[:cnt])
 	}
 
 	return nil
@@ -51,25 +51,25 @@ func (sock Socket) SendFile(fileName string) error {
 
 func (sock Socket) RecvFile(fileName string) error {
 	fileName = filepath.Base(fileName)
-	fileSize, _ := sock.Read()
-	if fileSize == "<ERROR>" {
+	fileSizeB, _ := sock.Read()
+	if string(fileSizeB) == "<ERROR>" {
 		return errors.New("Sent side open file failed.")
 	}
-	fileSize_i, _ := strconv.ParseInt(fileSize, 16, 64)
+	fileSize := int64(gopwn.U64(string(fileSizeB)))
 
 	file, err := os.Create(fileName)
 	if err != nil {
 		debug.Println(err)
-		sock.Write("<ERROR>")
+		sock.Write([]byte("<ERROR>"))
 		return err
 	}
-	sock.Write("<OK>")
+	sock.Write([]byte("<OK>"))
 	defer file.Close()
 
 	var receivedBytes int64 = 0
-	for receivedBytes != fileSize_i {
+	for receivedBytes != fileSize {
 		recv, _ := sock.Read()
-		fmt.Fprintf(file, "%s", recv)
+		file.Write(recv)
 		receivedBytes += int64(len(recv))
 	}
 

