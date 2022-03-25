@@ -2,6 +2,8 @@
 
 Gdoor is a macOS red team emulation tool developed by CyCraft Technology. It provides a control panel to perform attacks on every client connected to it. It can perform advanced persistence threats with other initial access techniques such as [CVE-2018-6574](https://github.com/frozenkp/CVE-2018-6574) which we used to demo in our presentation. We utilized it to construct a macOS cyber range to evaluate the blue team tools. With our MITRE ATT&CK logging system, the timing and operations can be a reference answer for detection and make the evaluation progress easier.
 
+![Demo](/demo.gif)
+
 ## Build
 
 ### Client
