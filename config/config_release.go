@@ -1,12 +1,10 @@
 //go:build !debug
-// +build !debug
 
 package config
 
 //import "strings"
 
 const (
-	Key        string = "ju5T4K3Yd0nTc4t3"
 	DEBUG      bool   = false
 	LOG        bool   = true
 	TargetDir  string = "/.default"

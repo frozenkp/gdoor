@@ -52,27 +52,29 @@ func connHandler(token string, sock socket.Socket) {
 			continue
 
 		case "push":
-			sock.Write(input)
+			sock.Write([]byte(input))
 			cmds := strings.Split(input, "push")
 			cmds[1] = strings.TrimSpace(cmds[1])
 
-			ftoken, _ := sock.Read()
+			ftokenB, _ := sock.Read()
+			ftoken := string(ftokenB)
 			socks[ftoken].SendFile(cmds[1])
 			socks[ftoken].Close()
 			delete(socks, ftoken)
 
 		case "pull":
-			sock.Write(input)
+			sock.Write([]byte(input))
 			cmds := strings.Split(input, "pull")
 			cmds[1] = strings.TrimSpace(cmds[1])
 
-			ftoken, _ := sock.Read()
+			ftokenB, _ := sock.Read()
+			ftoken := string(ftokenB)
 			socks[ftoken].RecvFile(cmds[1])
 			socks[ftoken].Close()
 			delete(socks, ftoken)
 
 		default:
-			sock.Write(input)
+			sock.Write([]byte(input))
 		}
 
 		resp, err := sock.Read()
@@ -82,7 +84,7 @@ func connHandler(token string, sock socket.Socket) {
 			return
 		}
 
-		fmt.Println(strings.TrimRight(resp, "\n"))
+		fmt.Println(strings.TrimRight(string(resp), "\n"))
 	}
 
 	return
@@ -117,10 +119,15 @@ func main() {
 			}
 
 			if conn != nil {
-				sock := socket.Init(conn, config.Key)
+				// build socket
+				sock, err := socket.Init(conn, config.Key, false)
+				if err != nil {
+					continue
+				}
+
 				// get client information
 				id, _ := sock.Read()
-				ids := strings.Split(id, ":") // TOKEN:USER
+				ids := strings.Split(string(id), ":") // TOKEN:USER
 				if len(ids) != 2 {
 					continue
 				}
@@ -129,10 +136,9 @@ func main() {
 				// generate socket and token
 				for {
 					if _, exist := socks[token]; !exist && token != "" {
-						sock := socket.Init(conn, config.Key)
 						socks[token] = sock
 						socksUser[token] = user
-						sock.Write(token)
+						sock.Write([]byte(token))
 						break
 					}
 					token = crypto.RandStringBytesMaskImprSrc(8)
@@ -160,9 +166,9 @@ func main() {
 
 		case "ls":
 			for k, v := range socks {
-				v.Write("ping")
+				v.Write([]byte("ping"))
 				resp, err := v.Read()
-				if err == io.EOF || resp != "pong" {
+				if err == io.EOF || string(resp) != "pong" {
 					v.Close()
 					delete(socks, k)
 					continue
