@@ -43,8 +43,6 @@ func Init(conn net.Conn, asymmetricKey []byte, client bool) (Socket, error) {
 		cipher: cipher,
 	}
 
-	log.Println(keyInfo)
-
 	return s, nil
 }
 
