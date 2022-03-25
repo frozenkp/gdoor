@@ -68,7 +68,11 @@ func (sock Socket) RecvFile(fileName string) error {
 
 	var receivedBytes int64 = 0
 	for receivedBytes != fileSize {
-		recv, _ := sock.Read()
+		recv, err := sock.Read()
+		if err != nil {
+			return err
+		}
+
 		file.Write(recv)
 		receivedBytes += int64(len(recv))
 	}
