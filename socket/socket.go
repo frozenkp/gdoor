@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"io"
-	"log"
 	"net"
 
 	"github.com/frozenkp/gopwn"
