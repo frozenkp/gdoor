@@ -5,5 +5,5 @@ client:
 	go build -tags release -tags client client.go
 
 client_debug:
-	go build -tags debug -tags client.go
+	go build -tags debug -tags client client.go
 
